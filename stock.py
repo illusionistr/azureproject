@@ -2,20 +2,34 @@ import yfinance as yf
 import streamlit as sl
 import pandas as pd
 
-sl.title('My little Finance App')
-df = pd.read_html('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')[0]
-tickers = df.Symbol.to_list()
-dropdown = sl.multiselect('Choose your  ticker', tickers)
-
 start = sl.date_input('Start date', pd.to_datetime('2019-01-01'))
 end = sl.date_input('End date', pd.to_datetime('today'))
 
-def relret(df):
-    rel = df.pct_change()
-    cumret = (1+rel).cumprod() -1
-    cumret = cumret.fillna(0)
-    return cumret
+def get_ticker_dict():
+        df = pd.read_html('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')[0]
+        ticker_dict = dict(zip(df['Security'], df['Symbol']))
+        return ticker_dict
 
-if len(dropdown) > 0:
-    df = relret(yf.download(dropdown, start, end)['Adj Close'])
-    sl.line_chart(df)
+ticker_dict = get_ticker_dict()
+print(ticker_dict)
+
+
+search_input = sl.text_input('Search by company name or symbol')
+if search_input:
+    if search_input in ticker_dict.values():
+        # Search by symbol
+        symbol = search_input
+    elif search_input in ticker_dict.keys():
+        # Search by company name
+        symbol = ticker_dict[search_input]
+    else:
+        sl.write(f"No search result found for '{search_input}'")
+        symbol = None
+
+    if symbol:
+        data = yf.download(symbol, start, end)
+        if not data.empty:
+            sl.write(f"Search result for '{search_input}':")
+            sl.line_chart(data['Adj Close'])
+        else:
+            sl.write(f"No data found for '{search_input}'")
