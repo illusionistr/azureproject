@@ -1,6 +1,7 @@
 import yfinance as yf
 import streamlit as sl
 import pandas as pd
+import difflib
 
 start = sl.date_input('Start date', pd.to_datetime('2019-01-01'))
 end = sl.date_input('End date', pd.to_datetime('today'))
@@ -11,8 +12,6 @@ def get_ticker_dict():
         return ticker_dict
 
 ticker_dict = get_ticker_dict()
-print(ticker_dict)
-
 
 search_input = sl.text_input('Search by company name or symbol')
 if search_input:
@@ -33,3 +32,12 @@ if search_input:
             sl.line_chart(data['Adj Close'])
         else:
             sl.write(f"No data found for '{search_input}'")
+
+def get_suggestions(search_input):
+                suggestions = difflib.get_close_matches(search_input, ticker_dict.keys())
+                return suggestions
+
+suggestions = get_suggestions(search_input)
+if suggestions:
+                sl.write("Did you mean:")
+                sl.write(suggestions)
