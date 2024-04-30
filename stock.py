@@ -46,3 +46,5 @@ def display_suggestions(suggestions):
                             if suggestion in ticker_dict.keys():
                                 symbol = ticker_dict[suggestion]
                                 sl.write(f"[{suggestion}](https://finance.yahoo.com/quote/{symbol})")
+
+display_suggestions(suggestions)
