@@ -52,4 +52,15 @@ def display_suggestions(suggestions):
                                 else:
                                     sl.write(f"No data found for '{suggestion}'")
 
-display_suggestions(suggestions)
+if suggestions:
+    sl.write("Did you mean:")
+    for suggestion in suggestions:
+        if suggestion in ticker_dict.keys():
+            symbol = ticker_dict[suggestion]
+            data = yf.download(symbol, start, end)
+            if not data.empty:
+                if sl.button(suggestion):
+                    sl.write(f"{suggestion}: {symbol}")
+                    sl.line_chart(data['Adj Close'])
+            else:
+                sl.write(f"No data found for '{suggestion}'")
