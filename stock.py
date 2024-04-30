@@ -38,6 +38,11 @@ def get_suggestions(search_input):
                 return suggestions
 
 suggestions = get_suggestions(search_input)
-if suggestions:
-                sl.write("Did you mean:")
-                sl.write(suggestions)
+
+def display_suggestions(suggestions):
+                    if suggestions:
+                        sl.write("Did you mean:")
+                        for suggestion in suggestions:
+                            if suggestion in ticker_dict.keys():
+                                symbol = ticker_dict[suggestion]
+                                sl.write(f"[{suggestion}](https://finance.yahoo.com/quote/{symbol})")
