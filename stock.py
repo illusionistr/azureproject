@@ -61,10 +61,6 @@ if suggestions:
             if not data.empty:
                 if sl.button(suggestion):
                     sl.write(f"{suggestion}: {symbol}")
-                    if not data.empty:
-                        if sl.button(suggestion):
-                            sl.write(f"{suggestion}: {symbol}")
-                            sl.line_chart(data['Adj Close'])
-                            suggestions.remove(suggestion)
+                    sl.line_chart(data['Adj Close'])
             else:
                 sl.write(f"No data found for '{suggestion}'")
