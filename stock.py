@@ -1,62 +1,101 @@
+
 import yfinance as yf
 import streamlit as sl
 import pandas as pd
-import difflib
+
+sl.title('My little Finance App')
+df = pd.read_html('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')[0]
+tickers = df.Symbol.to_list()
+dropdown = sl.multiselect('Choose your  ticker', tickers)
 
 start = sl.date_input('Start date', pd.to_datetime('2019-01-01'))
 end = sl.date_input('End date', pd.to_datetime('today'))
 
-def get_suggestions(search_input):
-                suggestions = difflib.get_close_matches(search_input, ticker_dict.keys())
-                return suggestions
+def relret(df):
+    rel = df.pct_change()
+    cumret = (1+rel).cumprod() -1
+    cumret = cumret.fillna(0)
+    return cumret
 
-def get_ticker_dict():
-        df = pd.read_html('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')[0]
-        ticker_dict = dict(zip(df['Security'], df['Symbol']))
-        return ticker_dict
-
-ticker_dict = get_ticker_dict()
-
-search_input = sl.text_input('Search by company name or symbol', key='search_input')
-
-# Create a list of suggestions based on the search input
-suggestions = get_suggestions(search_input)
-
-# Display a dropdown of suggestions while typing
-selected_suggestion = sl.selectbox('Suggestions', suggestions)
-
-if selected_suggestion:
-    symbol = ticker_dict[selected_suggestion]
-    data = yf.download(symbol, start, end)
-    if not data.empty:
-        sl.write(f"Search result for '{selected_suggestion}':")
-        sl.line_chart(data['Adj Close'])
-        # Display graph for GSPC
-        gspc_data = yf.download('^GSPC', start, end)
-        if not gspc_data.empty:
-            sl.write("S&P 500 (^GSPC):")
-            sl.line_chart(gspc_data['Adj Close'])
-        else:
-            sl.write("No data found for GSPC")
-    else:
-        sl.write(f"No data found for '{selected_suggestion}'")
+if len(dropdown) > 0:
+    df = relret(yf.download(dropdown, start, end)['Adj Close'])
+    sl.line_chart(df)
 
 
+import streamlit as st
+from htbuilder import HtmlElement, div, ul, li, br, hr, a, p, img, styles, classes, fonts
+from htbuilder.units import percent, px
+from htbuilder.funcs import rgba, rgb
 
-suggestions = get_suggestions(search_input)
 
-def display_suggestions(suggestions):
-                    if suggestions:
-                        sl.write("Did you mean:")
-                        for suggestion in suggestions:
-                            if suggestion in ticker_dict.keys():
-                                symbol = ticker_dict[suggestion]
-                                data = yf.download(symbol, start, end)
-                                if not data.empty:
-                                    if sl.button(suggestion):
-                                        sl.write(f"{suggestion}: {symbol}")
-                                        sl.line_chart(data['Adj Close'])
-                                else:
-                                    sl.write(f"No data found for '{suggestion}'")
+def image(src_as_string, **style):
+    return img(src=src_as_string, style=styles(**style))
 
-display_suggestions(suggestions)
+
+def link(link, text, **style):
+    return a(_href=link, _target="_blank", style=styles(**style))(text)
+
+
+def layout(*args):
+
+    style = """
+    <style>
+      # MainMenu {visibility: hidden;}
+      footer {visibility: hidden;}
+     .stApp { bottom: 105px; }
+    </style>
+    """
+
+    style_div = styles(
+        position="fixed",
+        left=0,
+        bottom=0,
+        margin=px(0, 0, 0, 0),
+        width=percent(100),
+        color="black",
+        text_align="center",
+        height="auto",
+        opacity=1
+    )
+
+    style_hr = styles(
+        display="block",
+        margin=px(8, 8, "auto", "auto"),
+        border_style="inset",
+        border_width=px(2)
+    )
+
+    body = p()
+    foot = div(
+        style=style_div
+    )(
+        hr(
+            style=style_hr
+        ),
+        body
+    )
+
+    st.markdown(style, unsafe_allow_html=True)
+
+    for arg in args:
+        if isinstance(arg, str):
+            body(arg)
+
+        elif isinstance(arg, HtmlElement):
+            body(arg)
+
+    st.markdown(str(foot), unsafe_allow_html=True)
+
+
+def footer():
+    myargs = [
+        "Made"
+        " with ❤️ by ",
+        link("https://github.com/Teknikp", "@Emmanuel"),
+        br(),
+    ]
+    layout(*myargs)
+
+
+if __name__ == "__main__":
+    footer()
