@@ -30,6 +30,13 @@ if search_input:
         if not data.empty:
             sl.write(f"Search result for '{search_input}':")
             sl.line_chart(data['Adj Close'])
+            # Display graph for GSPC
+            gspc_data = yf.download('^GSPC', start, end)
+            if not gspc_data.empty:
+                sl.write("S&P 500 (^GSPC):")
+                sl.line_chart(gspc_data['Adj Close'])
+            else:
+                sl.write("No data found for GSPC")
         else:
             sl.write(f"No data found for '{search_input}'")
 
