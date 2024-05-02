@@ -47,8 +47,9 @@ def display_suggestions(suggestions):
                                 symbol = ticker_dict[suggestion]
                                 data = yf.download(symbol, start, end)
                                 if not data.empty:
-                                    sl.write(f"{suggestion}: {symbol}")
-                                    sl.line_chart(data['Adj Close'])
+                                    if sl.button(suggestion):
+                                        sl.write(f"{suggestion}: {symbol}")
+                                        sl.line_chart(data['Adj Close'])
                                 else:
                                     sl.write(f"No data found for '{suggestion}'")
 
