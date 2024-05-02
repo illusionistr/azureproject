@@ -2,6 +2,7 @@
 import yfinance as yf
 import streamlit as sl
 import pandas as pd
+import seaborn as sns
 
 sl.title('My little Finance App')
 df = pd.read_html('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')[0]
@@ -18,3 +19,16 @@ if len(dropdown) > 0:
     sl.line_chart(df)
 
 
+
+    import matplotlib.pyplot as plt
+
+    data = {'Category': ['A', 'B', 'C', 'D'], 'Value': [1, 1, 1, 1]}
+    df = pd.DataFrame(data)
+
+    plt.figure(figsize=(6, 6))
+    sns.set_palette("Set3")
+    sns.set_style("whitegrid")
+    plt.title("Pie Chart")
+    plt.pie(df['Value'], labels=df['Category'], autopct='%1.1f%%')
+    plt.axis('equal')
+    plt.show()
