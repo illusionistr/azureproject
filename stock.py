@@ -60,7 +60,8 @@ if suggestions:
             data = yf.download(symbol, start, end)
             if not data.empty:
                 if sl.button(suggestion):
-                    sl.write(f"{suggestion}: {symbol}")
+                    if sl.button(suggestion, key=suggestion):
+                        sl.line_chart(data['Adj Close'])
                     sl.line_chart(data['Adj Close'])
             else:
                 sl.write(f"No data found for '{suggestion}'")
